@@ -168,10 +168,15 @@ export CPATH="$INCLUDE_PATH"
 export CPPPATH="$INCLUDE_PATH"
 
 # install dependencies with npm
-echo "-----> Installing dependencies with npm"
-run_npm "install --production"
-run_npm "rebuild"
-echo "Dependencies installed" | indent
+echo "-----> Installing dependencies with npm $NPM_VERSION"
+cd $BUILD_DIR
+HOME="$BUILD_DIR" GIT_DIR=".git" $VENDORED_NODE/bin/node $VENDORED_NPM/cli.js install --production 2>&1 | indent
+if [ "${PIPESTATUS[*]}" != "0 0" ]; then
+  echo " !     Failed to install dependencies with npm"
+  exit 1
+else
+  echo "       Dependencies installed"
+fi
 
 echo "-----> Building runtime environment"
 mkdir -p $BUILD_DIR/.profile.d
